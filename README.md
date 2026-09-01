@@ -1,12 +1,9 @@
 ## EX. NO:2 IMPLEMENTATION OF PLAYFAIR CIPHER
-
+### NAME: KIRUTIKA K R
+### REG NO: 212224230128
  
 
 ## AIM:
- 
-
- 
-
 To write a C program to implement the Playfair Substitution technique.
 
 ## DESCRIPTION:
@@ -34,10 +31,256 @@ STEP-5: Display the obtained cipher text.
 
 
 
-Program:
+## Program:
+```
+#include <stdio.h> 
+#include <string.h> 
+#include <ctype.h> 
+char keyTable[5][5]; 
+// Generate 5x5 key table 
+void generateKeyTable(char key[]) 
+{ 
+int used[26] = {0}; 
+int i, j = 0, k = 0; 
+ 
+    used['j' - 'a'] = 1;   // Treat J as I 
+// Fill key letters 
+for (i = 0; key[i] != '\0'; i++) 
+    { 
+        char ch = tolower(key[i]); 
+ 
+       if (ch == 'j') 
+            ch = 'i'; 
+ 
+        if (ch >= 'a' && ch <= 'z' && !used[ch - 'a']) 
+        { 
+            keyTable[j][k] = ch; 
+            used[ch - 'a'] = 1; 
+ 
+            k++; 
+            if (k == 5) 
+            { 
+                k = 0; 
+                j++; 
+            } 
+        } 
+    } 
+ 
+    // Fill remaining alphabet 
+    for (i = 0; i < 26; i++) 
+    { 
+        if (!used[i]) 
+        { 
+            keyTable[j][k] = i + 'a'; 
+ 
+            k++; 
+            if (k == 5) 
+            { 
+                k = 0; 
+                j++; 
+            } 
+        } 
+    } 
+} 
+ 
+// Display key table 
+void displayKeyTable() 
+{ 
+    int i, j; 
+ 
+    printf("\nKey Table:\n"); 
+ 
+    for (i = 0; i < 5; i++) 
+    { 
+        for (j = 0; j < 5; j++) 
+        { 
+            printf("%c ", toupper(keyTable[i][j])); 
+        } 
+        printf("\n"); 
+    } 
+} 
+ 
+// Find position of character 
+void findPosition(char ch, int *row, int *col) 
+{ 
+    if (ch == 'j') 
+        ch = 'i'; 
+ 
+    for (int i = 0; i < 5; i++) 
+    { 
+        for (int j = 0; j < 5; j++) 
+        { 
+            if (keyTable[i][j] == ch) 
+            { 
+                *row = i; 
+                *col = j; 
+                return; 
+            } 
+        } 
+    } 
+} 
+ 
+// Prepare plaintext 
+void prepareText(char text[]) 
+{ 
+    char temp[200]; 
+    char result[200]; 
+    int i, j = 0, k = 0; 
+ 
+    // Remove spaces and convert to lowercase 
+    for (i = 0; text[i] != '\0'; i++) 
+    { 
+        if (isalpha(text[i])) 
+        { 
+            char ch = tolower(text[i]); 
+ 
+            if (ch == 'j') 
+                ch = 'i'; 
+ 
+            temp[j++] = ch; 
+        } 
+    } 
+ 
+    temp[j] = '\0'; 
+ 
+    // Create pairs 
+    for (i = 0; i < j;) 
+    { 
+        result[k++] = temp[i]; 
+ 
+        if (i + 1 < j) 
+        { 
+            if (temp[i] == temp[i + 1]) 
+            { 
+                result[k++] = 'x'; 
+                i++; 
+            } 
+            else 
+            { 
+                result[k++] = temp[i + 1]; 
+                i += 2; 
+            } 
+        } 
+        else 
+        { 
+            result[k++] = 'x'; 
+            i++; 
+        } 
+    } 
+ 
+    result[k] = '\0'; 
+ 
+    strcpy(text, result); 
+} 
+ 
+// Encrypt 
+void encrypt(char text[]) 
+{ 
+    int i; 
+ 
+    printf("\nCipher Text: "); 
+ 
+    for (i = 0; text[i] != '\0'; i += 2) 
+    { 
+        int r1, c1, r2, c2; 
+ 
+        findPosition(text[i], &r1, &c1); 
+        findPosition(text[i + 1], &r2, &c2); 
+ 
+        if (r1 == r2) 
+        { 
+            printf("%c%c", 
+                   toupper(keyTable[r1][(c1 + 1) % 5]), 
+                   toupper(keyTable[r2][(c2 + 1) % 5])); 
+        } 
+        else if (c1 == c2) 
+        { 
+            printf("%c%c", 
+                   toupper(keyTable[(r1 + 1) % 5][c1]), 
+                   toupper(keyTable[(r2 + 1) % 5][c2])); 
+        } 
+        else 
+        { 
+            printf("%c%c", 
+                   toupper(keyTable[r1][c2]), 
+                   toupper(keyTable[r2][c1])); 
+        } 
+    } 
+ 
+    printf("\n"); 
+} 
+ 
+// Decrypt 
+void decrypt(char text[]) 
+{ 
+    int i; 
+ 
+    printf("Decrypted Text: "); 
+ 
+    for (i = 0; text[i] != '\0'; i += 2) 
+    { 
+        int r1, c1, r2, c2; 
+ 
+        findPosition(tolower(text[i]), &r1, &c1); 
+        findPosition(tolower(text[i + 1]), &r2, &c2); 
+ 
+        if (r1 == r2) 
+        { 
+            printf("%c%c", 
+                   toupper(keyTable[r1][(c1 + 4) % 5]), 
+                   toupper(keyTable[r2][(c2 + 4) % 5])); 
+        } 
+        else if (c1 == c2) 
+        { 
+            printf("%c%c", 
+                   toupper(keyTable[(r1 + 4) % 5][c1]), 
+                   toupper(keyTable[(r2 + 4) % 5][c2])); 
+        } 
+        else 
+        { 
+            printf("%c%c", 
+                   toupper(keyTable[r1][c2]), 
+                   toupper(keyTable[r2][c1])); 
+        } 
+    } 
+ 
+    printf("\n"); 
+} 
+ 
+int main() 
+{ 
+    char key[100]; 
+    char plaintext[200]; 
+    char ciphertext[200]; 
+ 
+    printf("Enter Key: "); 
+    scanf("%s", key); 
+ 
+    getchar(); 
+ 
+    printf("Enter Plain Text: "); 
+    fgets(plaintext, sizeof(plaintext), stdin); 
+ 
+    plaintext[strcspn(plaintext, "\n")] = '\0'; 
+ 
+    generateKeyTable(key); 
+ 
+    displayKeyTable(); 
+ 
+    prepareText(plaintext); 
+ 
+    printf("\nPrepared Plain Text: %s\n", plaintext); 
+// Encrypt 
+encrypt(plaintext); 
+// Enter ciphertext for decryption 
+printf("\nEnter Cipher Text for Decryption: "); 
+scanf("%s", ciphertext); 
+decrypt(ciphertext); 
+return 0; 
+}
+```
+## Output:
+<img width="512" height="480" alt="image" src="https://github.com/user-attachments/assets/581b4261-32c6-40f4-8392-86c404e1c41c" />
 
-
-
-
-
-Output:
+## Result:
+Thus, the Playfair Cipher algorithm was successfully implemented using the C language. 
